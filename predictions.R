@@ -38,8 +38,9 @@ cv_size <- round(0.2*nrow(full_train))
 cv_index <- sample(x=nrow(full_train), size=cv_size, replace=TRUE)
 
 trainset <- full_train[-cv_index, ]
+write.csv(trainset, "trainset.csv")
 cvset <- full_train[cv_index, ]
-
+write.csv(cvset, "cvaetr.csv")
 # test section:
 
 test_query <- "select D2.cat_comp_brand_sum from (select id, company, category, brand from testHistory A, offers B where A.offer = B.offer) D1 LEFT OUTER JOIN
@@ -110,6 +111,7 @@ table(predict_fin, cvset$repeater)
 (21417 + 926) / (21417 + 926 + 1850 + 7818)
 
 colnames(full_Test)[31] <- "train_comp_brand_cat.cat_comp_brand_sum"
+write.csv(full_Test, "testset.csv")
 predict_res <- predict(full_log_model, full_Test, type="response")
 head(predict_res)
 # make first submission
@@ -132,3 +134,31 @@ varImpPlot(rm_fit)
 head(last_sub)
 write.table(cbind("id", "repeatProbability"), 'submission7.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",")
 write.table(cbind(full_Test$id, last_sub), 'submission7.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",", append=TRUE)
+
+
+library(e1071)
+sv_mod <- svm(y=factor(trainset$repeater), x=  trainset[ , c("category", "company",  "brand", "amount", "purchases", "company_sum", "company_purchases",
+                                                             "brand_sum", "brand_purchases", "returnings", "returnings_amount", "company_returnings_sum", 
+                "company_returnings_amount", "brand_returnings_sum", "brand_returnings_amount", "company_brand_category_returnings_sum", 
+                "company_brand_category_returnings_amount", "deals_amount", "company_deals", "brand_deals", "company_brand_category_deals_amount", 
+                "train_comp_brand_cat.cat_comp_brand_sum")], 
+              data = trainset, kernel = "radial")
+
+summary(sv_mod)
+
+cv_pred <- predict(sv_mod, cvset[ , c("category", "company",  "brand", "amount", "purchases", "company_sum", "company_purchases",
+                                      "brand_sum", "brand_purchases", "returnings", "returnings_amount", "company_returnings_sum", 
+                                      "company_returnings_amount", "brand_returnings_sum", "brand_returnings_amount", "company_brand_category_returnings_sum", 
+                                      "company_brand_category_returnings_amount", "deals_amount", "company_deals", "brand_deals", "company_brand_category_deals_amount", 
+                                      "train_comp_brand_cat.cat_comp_brand_sum")])
+table(cv_pred, cvset$repeater)
+(23110 + 305)/(nrow(cvset))
+
+final_pred <- predict(sv_mod, full_Test[ , c("category", "company",  "brand", "amount", "purchases", "company_sum", "company_purchases",
+                                             "brand_sum", "brand_purchases", "returnings", "returnings_amount", "company_returnings_sum", 
+                                             "company_returnings_amount", "brand_returnings_sum", "brand_returnings_amount", "company_brand_category_returnings_sum", 
+                                             "company_brand_category_returnings_amount", "deals_amount", "company_deals", "brand_deals", "company_brand_category_deals_amount", 
+                                             "train_comp_brand_cat.cat_comp_brand_sum")])
+head(final_pred)
+write.table(cbind("id", "repeatProbability"), 'submission_svm.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",")
+write.table(cbind(full_Test$id, final_pred), 'submission_svm.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",", append=TRUE)
