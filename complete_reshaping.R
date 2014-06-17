@@ -7,26 +7,47 @@ train$offerdate <- as.Date(train$offerdate)
 
 colnames(train)
 
-reshaping_q_names1 <- c("all_purchases_q", "diff_category_q",  "diff_company_q", "diff_brand_q", "all_purchases_q_30", "diff_category_q_30",
+
+str(train)
+
+quantile(train$same_company_q)
+
+
+reshaping_q_names <- c("all_purchases_q", "diff_category_q",  "diff_company_q", "diff_brand_q", "all_purchases_q_30", "diff_category_q_30",
                         "diff_company_q_30", "diff_brand_q_30","all_purchases_q_60", "diff_category_q_60",
                         "diff_company_q_60", "diff_brand_q_60", "all_purchases_q_90", "diff_category_q_90",
                         "diff_company_q_90", "diff_brand_q_90", "all_purchases_q_180", "diff_category_q_180",
-                        "diff_company_q_180", "diff_brand_q_180")
+                        "diff_company_q_180", "diff_brand_q_180", "all_returnings", "diff_returning_category",
+                        "diff_returning_company", "diff_returning_brand")
 
-reshaping_b1_names <- c("same_company_q", "diff_brand_same_company", "same_brand_q.x", "diff_category_same_company", "diff_brand_same_company", "same_brand_q.x", "diff_category_same_brand.x",
-                       "diff_company_same_brand.x", "same_category_q.x", "diff_brand_same_category.x", "diff_company_same_category.x",
-                       "same_category_company_brand_q", "same_company_q_30", "diff_category_same_company_30", "diff_brand_same_company_30",
-                       "same_category_q.y", "diff_category_same_brand.y", "diff_company_same_brand.y", "same_category_company_brand_q_30",
-                       "same_company_q_60", "diff_category_same_company_60", "diff_brand_same_company_60", "same_category_q_60",
-                       "diff_brand_same_category_60", "diff_company_same_category_60", "same_brand_q_60", "diff_category_same_brand_60",
-                       "diff_company_same_brand_60")
+
+                        
+                        )
+
+reshaping_b_names <- c("same_company_q", "diff_category_same_company", "diff_brand_same_company", "same_brand_q", "diff_category_same_brand",                        
+                        "diff_company_same_brand", "same_category_q", "diff_brand_same_category", "diff_company_same_brand", "same_category_q",
+                        "diff_brand_same_category", "diff_company_same_category", "same_category_company_brand_q", "same_company_q_30",                      
+                        "diff_category_same_company_30", "diff_brand_same_company_30", "same_category_q_30", "diff_brand_same_category_30",
+                        "diff_company_same_category_30", "same_brand_q_30", "diff_category_same_brand_q_30", "diff_company_same_brand_q_30",
+                        "same_category_company_brand_q_30", "same_company_q_60", "diff_category_same_company_60", "diff_brand_same_company_60",
+                        "same_category_q_60", "diff_brand_same_category_60", "diff_company_same_category_60", "same_brand_q_60", "diff_category_same_brand_60",
+                        "diff_company_same_brand_60", "same_category_company_brand_q_60", "same_company_q_90", "diff_category_same_company_90",
+                        "diff_brand_same_company_90", "same_category_q_90", "diff_brand_same_category_90", "diff_company_same_category_90",
+                        "same_brand_q_90", "diff_category_same_brand_90", "diff_company_same_brand_90", "same_category_company_brand_q_90",
+                        "same_company_q_180", "diff_category_same_company_180", "diff_brand_same_company_180", "same_category_q_180",                
+                        "diff_brand_same_category_180", "diff_company_same_category_180", "same_brand_q_180", "diff_brand_same_category_180",
+                        "diff_company_same_brand_180",  "same_category_company_brand_q_180", "same_brand_returnings_30", "diff_category_same_brand_returnings_30",
+                        "diff_company_same_brand_retrurnings_30", "same_brand_returnings_60", "diff_category_same_brand_returnings_60", 
+                        "diff_company_same_brand_retrurnings_60", "same_brand_returnings_90", "diff_category_same_brand_returnings_90",
+                        "diff_company_same_brand_retrurnings_90", "same_category_company_brand_returnings", "same_category_company_brand_returnings_30",
+                        "same_category_company_brand_returnings_60", "same_category_company_brand_returnings_90", "same_category_company_brand_returnings_180")
 
 
 
 
                     
-fullset_q <- rbind(train[ ,reshaping_q_names1], test[ ,reshaping_q_names1])                
-fullset_b <- rbind(train[ ,reshaping_b1_names], test[ ,reshaping_b1_names])
+fullset_q <- rbind(train[ ,reshaping_q_names], test[ ,reshaping_q_names])                
+fullset_b <- rbind(train[ ,reshaping_b_names], test[ ,reshaping_b_names])
 
 
 fullset_q[,1]
@@ -48,6 +69,7 @@ binarization <- function(input_vector){
 conv_quant(fullset_q[,1])
 binarization(fullset_b[,1])
 
+library(Hmisc)
 reshaped_fullset_q <- data.frame(apply(fullset_q, 2, conv_quant))
 reshaped_fullset_b <- data.frame(apply(fullset_b, 2, binarization))
 
