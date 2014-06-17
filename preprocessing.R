@@ -2,9 +2,6 @@ library(RJDBC)
 vDriver = JDBC(driverClass="com.vertica.jdbc.Driver", classPath="/home/akornil/vertica/vertica-jdbc-7.0.1-0.jar")
 vertica = dbConnect(vDriver, "jdbc:vertica://192.168.240.94:5433/Shoppers", "dbadmin", "vertica7")
 
-
-
-
 ###
 # queries for trainsert:
 
@@ -50,12 +47,12 @@ q7 <- "select T1.id, count(*) same_company_q_30, count(distinct(category)) diff_
 (select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
 transactions T2 where T1.id = T2.id and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 30 group by T1.id;"
 
-q8 <- "select T1.id, count(*) same_category_q, count(distinct(brand)) diff_brand_same_category, count(distinct(company)) diff_company_same_category from 
+q8 <- "select T1.id, count(*) same_category_q_30, count(distinct(brand)) diff_brand_same_category_30, count(distinct(company)) diff_company_same_category_30 from 
 (select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
 transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerdate - T2.transdate < 30 group by T1.id;"
 
 
-q9 <- "select T1.id, count(*) same_brand_q, count(distinct(category)) diff_category_same_brand, count(distinct(company)) diff_company_same_brand from 
+q9 <- "select T1.id, count(*) same_brand_q_30, count(distinct(category)) diff_category_same_brand_q_30, count(distinct(company)) diff_company_same_brand_q_30 from 
 (select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
 transactions T2 where T1.id = T2.id and T1.offerbrand = T2.brand and T1.offerdate - T2.transdate < 30  group by T1.id;"
 
@@ -82,17 +79,95 @@ q14 <- "select T1.id, count(*) same_brand_q_60, count(distinct(category)) diff_c
 (select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
 transactions T2 where T1.id = T2.id and T1.offerbrand = T2.brand and T1.offerdate - T2.transdate < 60  group by T1.id;"
 
+q15 <- "select T1.id, count(*) same_category_company_brand_q_60 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 60 group by T1.id;"
+
 # 3 month before
 
-q15 <- "select T1.id, count(*) all_purchases_q_90, count(distinct(category)) diff_category_q_90, count(distinct(company)) diff_company_q_90, count(distinct(brand)) diff_brand_q_90 from 
+q16 <- "select T1.id, count(*) all_purchases_q_90, count(distinct(category)) diff_category_q_90, count(distinct(company)) diff_company_q_90, count(distinct(brand)) diff_brand_q_90 from 
 (select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
 transactions T2 where T1.id = T2.id and T1.offerdate - T2.transdate < 90 group by T1.id;"
 
+
+q17 <- "select T1.id, count(*) same_company_q_90, count(distinct(category)) diff_category_same_company_90, count(distinct(brand)) diff_brand_same_company_90 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 90 group by T1.id;"
+
+q18 <- "select T1.id, count(*) same_category_q_90, count(distinct(brand)) diff_brand_same_category_90, count(distinct(company)) diff_company_same_category_90 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerdate - T2.transdate < 90 group by T1.id;"
+
+
+q19 <- "select T1.id, count(*) same_brand_q_90, count(distinct(category)) diff_category_same_brand_90, count(distinct(company)) diff_company_same_brand_90 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offerbrand = T2.brand and T1.offerdate - T2.transdate < 90  group by T1.id;"
+
+q20 <- "select T1.id, count(*) same_category_company_brand_q_90 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 90 group by T1.id;"
+
 # half a year
 
-q16 <- "select T1.id, count(*) all_purchases_q_180, count(distinct(category)) diff_category_q_180, count(distinct(company)) diff_company_q_180, count(distinct(brand)) diff_brand_q_180 from 
+q21 <- "select T1.id, count(*) all_purchases_q_180, count(distinct(category)) diff_category_q_180, count(distinct(company)) diff_company_q_180, count(distinct(brand)) diff_brand_q_180 from 
 (select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
 transactions T2 where T1.id = T2.id and T1.offerdate - T2.transdate < 180 group by T1.id;"
+
+
+q22 <- "select T1.id, count(*) same_company_q_180, count(distinct(category)) diff_category_same_company_180, count(distinct(brand)) diff_brand_same_company_180 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 180 group by T1.id;"
+
+q23 <- "select T1.id, count(*) same_category_q_180, count(distinct(brand)) diff_brand_same_category_180, count(distinct(company)) diff_company_same_category_180 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerdate - T2.transdate < 180 group by T1.id;"
+
+
+q24 <- "select T1.id, count(*) same_brand_q_180, count(distinct(category)) diff_category_same_brand_180, count(distinct(company)) diff_company_same_brand_180 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offerbrand = T2.brand and T1.offerdate - T2.transdate < 180  group by T1.id;"
+
+q25 <- "select T1.id, count(*) same_category_company_brand_q_180 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 180 group by T1.id;"
+
+# returnings:
+
+q26 <- "select T1.id, count(*) all_returnings, count(distinct(category)) diff_returning_category, count(distinct(company)) diff_returning_company, count(distinct(brand)) diff_returning_brand from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T2.purchaseamount <= 0 group by T1.id;"
+
+q27 <- "select T1.id, count(*) same_brand_returnings_30, count(distinct(category)) diff_category_same_brand_returnings_30, count(distinct(company)) diff_company_same_brand_retrurnings_30 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offerbrand = T2.brand  and T2.purchaseamount <= 0 and T1.offerdate - T2.transdate < 30  group by T1.id;"
+
+q28 <- "select T1.id, count(*) same_brand_returnings_60, count(distinct(category)) diff_category_same_brand_returnings_60, count(distinct(company)) diff_company_same_brand_retrurnings_60 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offerbrand = T2.brand  and T2.purchaseamount <= 0 and T1.offerdate - T2.transdate < 60  group by T1.id;"
+
+q29 <- "select T1.id, count(*) same_brand_returnings_90, count(distinct(category)) diff_category_same_brand_returnings_90, count(distinct(company)) diff_company_same_brand_retrurnings_90 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offerbrand = T2.brand  and T2.purchaseamount <= 0 and T1.offerdate - T2.transdate < 90  group by T1.id;"
+
+q30 <- "select T1.id, count(*) same_category_company_brand_returnings from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T2.purchaseamount <= 0  group by T1.id;"
+
+q31 <- "select T1.id, count(*) same_category_company_brand_returnings_30 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 30  and T2.purchaseamount <= 0  group by T1.id;"
+
+q32 <- "select T1.id, count(*) same_category_company_brand_returnings_60 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 60  and T2.purchaseamount <= 0  group by T1.id;"
+
+q33 <- "select T1.id, count(*) same_category_company_brand_returnings_90 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 90  and T2.purchaseamount <= 0  group by T1.id;"
+
+q34 <- "select T1.id, count(*) same_category_company_brand_returnings_180 from 
+(select id, repeater, category offercategory, company offercompany, brand offerbrand, quantity offerquantity, offervalue, offerdate from trainHistory A, offers B where A.offer = B.offer) T1,
+transactions T2 where T1.id = T2.id and T1.offercategory = T2.category and T1.offerbrand = T2.brand and T1.offercompany = T2.company  and T1.offerdate - T2.transdate < 180  and T2.purchaseamount <= 0  group by T1.id;"
 
 main_part <- dbGetQuery(vertica, main_q)
 
@@ -105,50 +180,22 @@ full_trainset <- merge(main_part, part1,by="id", all.x=TRUE)
 names(full_trainset)
 
 
-part2 <- dbGetQuery(vertica, q2)
-full_trainset <- merge(full_trainset, part2, by = "id", all.x = TRUE)
+vector_queries <- c(q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29, q30, q31, q32, q33, q34)
 
-part3 <- dbGetQuery(vertica, q3)
-full_trainset <- merge(full_trainset, part3, by = "id", all.x = TRUE)
 
-part4 <- dbGetQuery(vertica, q4)
-full_trainset <- merge(full_trainset, part4, by = "id", all.x = TRUE)
+merge_n_sets <- function(n1, n2){
+  for (i in n1:n2){    
+    part <-  dbGetQuery(vertica, vector_queries[i])
+    print(names(part))
+    full_trainset <- merge(full_trainset, part, by = "id", all.x = TRUE)
+    print(names(full_trainset))
+  }
+  return(full_trainset)
+}
+# 
+# merge_n_sets(5, 34)
+full_trainset <- merge_n_sets(2, 34)
 
-part5 <- dbGetQuery(vertica, q5)
-full_trainset <- merge(full_trainset, part5, by = "id", all.x = TRUE)
-
-part6 <- dbGetQuery(vertica, q6)
-full_trainset <- merge(full_trainset, part6, by = "id", all.x = TRUE)
-
-part7 <- dbGetQuery(vertica, q7)
-full_trainset <- merge(full_trainset, part7, by = "id", all.x = TRUE)
-
-part8 <- dbGetQuery(vertica, q8)
-full_trainset <- merge(full_trainset, part8, by = "id", all.x = TRUE)
-
-part9 <- dbGetQuery(vertica, q9)
-full_trainset <- merge(full_trainset, part9, by = "id", all.x = TRUE)
-
-part10 <- dbGetQuery(vertica, q10)
-full_trainset <- merge(full_trainset, part10, by = "id", all.x = TRUE)
-
-part11 <- dbGetQuery(vertica, q11)
-full_trainset <- merge(full_trainset, part11, by = "id", all.x = TRUE)
-
-part12 <- dbGetQuery(vertica, q12)
-full_trainset <- merge(full_trainset, part12, by = "id", all.x = TRUE)
-
-part13 <- dbGetQuery(vertica, q13)
-full_trainset <- merge(full_trainset, part13, by = "id", all.x = TRUE)
-
-part14 <- dbGetQuery(vertica, q14)
-full_trainset <- merge(full_trainset, part14, by = "id", all.x = TRUE)
-
-part15 <- dbGetQuery(vertica, q15)
-full_trainset <- merge(full_trainset, part15, by = "id", all.x = TRUE)
-
-part16 <- dbGetQuery(vertica, q16)
-full_trainset <- merge(full_trainset, part16, by = "id", all.x = TRUE)
 
 
 full_trainset[is.na(full_trainset)] <- 0
