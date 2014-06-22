@@ -1,10 +1,10 @@
 library(caret)
 
-# train <- read.csv("reshaped_comp_train.csv")
-# test <- read.csv("reshaped_comp_test.csv")
+train <- read.csv("reshaped_comp_train.csv")
+test <- read.csv("reshaped_comp_test.csv")
 
-train <- read.csv("complete_train.csv")
-test <- read.csv("complete_test.csv")
+# train <- read.csv("complete_train.csv")
+# test <- read.csv("complete_test.csv")
 train$offerdate <- as.Date(as.character(train$offerdate))
 
 
@@ -12,8 +12,8 @@ str(train)
 cut_train <- train[train$offerdate < '2013-04-20', -c(1, 3:6, 8)]
 cv <- train[train$offerdate >= '2013-04-20', -c(1, 3:6, 8)]
 
-write.csv(cut_train, "cut_train.csv", row.names = FALSE)
-write.csv(cv, "cv.csv", row.names = FALSE)
+# write.csv(cut_train, "cut_train.csv", row.names = FALSE)
+# write.csv(cv, "cv.csv", row.names = FALSE)
 
 
 
@@ -25,36 +25,46 @@ str(cut_train)
 
 ##
 # model_short <- train(repeater ~., data = train[, -c(1, 3, 4, 5, 6,  8)], preProcess="pca", method ="glm")
-model_short <- train(repeater ~., data = cut_train,  preProcess = c("center", "scale"), method ="glm")
-model_lda <- train(repeater ~., data = cut_train,  preProcess = c("center", "scale"), method ="lda")
-model_knn <- train(cut_train[,-c(1)], cut_train$repeater, method ="knn", preProcess = c("center", "scale"))
+# model_short <- train(repeater ~., data = cut_train,  preProcess = c("center", "scale"), method ="glm")
+# model_lda <- train(repeater ~., data = cut_train,  preProcess = c("center", "scale"), method ="lda")
+# model_knn <- train(cut_train[,-c(1)], cut_train$repeater, method ="knn", preProcess = c("center", "scale"))
 
 
+
+model_gbm <- train(repeater ~., data = cut_train,  preProcess = c("pca"), method ="gbm")
+
+pr_cv <- predict(model_gbm, cv)
+length(pr_cv)
+head(cv$repeater)
+confusionMatrix(cv$repeater, pr_cv)
 
 # model_rf <- train(repeater ~., data = cut_train,  preProcess = c("center", "scale"), method ="rf")
 
-predict_cv <- predict(model_short, test)
+# predict_cv <- predict(model_short, test)
+# 
+# preditc_cv2 <- predict(model_short, cv)
+# predict_cv1 <- predict(model_lda, cv)
 
-preditc_cv2 <- predict(model_short, cv)
-predict_cv1 <- predict(model_lda, cv)
-
-confusionMatrix(cv$repeater, predict_cv1)
-
-model_full <- train(repeater ~., data = train[, -c(1, 4)],  method ="glm")
-model_rf <- train(repeater ~., data = train[, -c(1,4 )], method ="rf", prox=TRUE)
-model_lda <- train(repeater ~., data = train[, -c(1,4 )], method ="lda", prox=TRUE)
-model_lda
-
-str(test)
-str(train)
+# confusionMatrix(cv$repeater, predict_cv1)
+# 
+# model_full <- train(repeater ~., data = train[, -c(1, 4)],  method ="glm")
+# model_rf <- train(repeater ~., data = train[, -c(1,4 )], method ="rf", prox=TRUE)
+# model_lda <- train(repeater ~., data = train[, -c(1,4 )], method ="lda", prox=TRUE)
+# model_lda
+# 
+# str(test)
+# str(train)
 
 # pca <- predict(model_short,  newdata=test[,-c(1:5, 7)])
 
-pca <- predict(model_lda,  newdata=test[,-c(1,3)])
+pca <- predict(model_gbm,  newdata=test[,-c(1,3)])
+test_pred <- predict(model_gbm, newdata=train[,-c(1:6, 8)])
+head(test_pred)
 
+confusionMatrix(test_pred, train$repeater)
 head(pca)
+# 
+# from_h20 <- read.csv("d_l_cut.csv")
 
-from_h20 <- read.csv("d_l_cut.csv")
-
-write.table(cbind("id", "repeatProbability"), 'pca.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",")
-write.table(cbind(test$id, from_h20$predict), 'pca.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",", append=TRUE)
+write.table(cbind("id", "repeatProbability"), 'gbm.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",")
+write.table(cbind(test$id, pca), 'gbm.csv', quote=FALSE, col.names=FALSE, row.names=FALSE, sep = ",", append=TRUE)
