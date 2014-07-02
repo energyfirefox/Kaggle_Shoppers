@@ -68,24 +68,32 @@ tanimoto_similarity <- function(user1_ratings, user2_ratings){
 head(ids)
 
 tanimoto_similarity(list_brand[["86246"]], list_brand[["86252"]])
+# 
+# get_NN_users <- function(customerID, list_brand, similarity_function, neighbours=5){
+#   customerID <- as.character(customerID)
+#   current_ratings <- list_brand[[customerID]]
+#   users_similarity <- sapply(list_brand, tanimoto_similarity, user2_ratings = current_ratings) 
+#   recommendations <- data.frame(rec_names=names(users_similarity[1:neighbours]), rec_sim=users_similarity[1:neighbours])
+#   recommendations$rec_names <- as.character(recommendations$rec_names)
+#   min_ind <- which(recommendations$rec_sim == min(recommendations$rec_sim))
+#   current_min <- min(recommendations$rec_sim)
+# #   print(current_min)
+# 
+#   for (i in (neighbours+1):length(list_brand)){
+#     if (as.numeric(users_similarity[i]) > current_min){      
+#       recommendations$rec_names[min_ind] <- names(users_similarity)[i]
+#       recommendations$rec_sim[min_ind] <- as.numeric(users_similarity[i])
+#       current_min <- min(recommendations$rec_sim)
+#     }
+#   }
+#   return(recommendations)
+# }
 
 get_NN_users <- function(customerID, list_brand, similarity_function, neighbours=5){
   customerID <- as.character(customerID)
   current_ratings <- list_brand[[customerID]]
   users_similarity <- sapply(list_brand, tanimoto_similarity, user2_ratings = current_ratings) 
-  recommendations <- data.frame(rec_names=names(users_similarity[1:neighbours]), rec_sim=users_similarity[1:neighbours])
-  recommendations$rec_names <- as.character(recommendations$rec_names)
-  min_ind <- which(recommendations$rec_sim == min(recommendations$rec_sim))
-  current_min <- min(recommendations$rec_sim)
-#   print(current_min)
-
-  for (i in (neighbours+1):length(list_brand)){
-    if (as.numeric(users_similarity[i]) > current_min){      
-      recommendations$rec_names[min_ind] <- names(users_similarity)[i]
-      recommendations$rec_sim[min_ind] <- as.numeric(users_similarity[i])
-      current_min <- min(recommendations$rec_sim)
-    }
-  }
+  recommendations <- names(sort(users_similarity, decreasing=T)[2:(neighbours+1)])
   return(recommendations)
 }
 
@@ -93,6 +101,10 @@ customerID <- "86246"
 
 get_NN_users("86246", list_brand, similarity_function = tanimoto_similarity, 30)
 system.time(recs <- get_NN_users("86246", list_brand, similarity_function = tanimoto_similarity, 30))
+
+
+  
+
 
 library(multicore)
 
