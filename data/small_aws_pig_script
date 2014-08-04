@@ -1,0 +1,85 @@
+
+
+trans1 = LOAD 's3n://kaggleshoppersnew/small_transactions.csv' using PigStorage(',')  AS (id:chararray, chain:chararray, dept:chararray, category:chararray, company:chararray, brand:chararray, date:chararray, productsize:int, productmeasure:chararray, purchasequantity:chararray, purchaseamount:chararray);
+
+
+trans1 = FILTER trans1 BY id != '"id"';
+brand_1 = FOREACH trans1 GENERATE id, brand;
+
+brand_1 = DISTINCT brand_1;
+
+trans2 = LOAD 's3n://kaggleshoppersnew/small_transactions.csv' using PigStorage(',')  AS (id:chararray, chain:chararray, dept:chararray, category:chararray, company:chararray, brand:chararray, date:chararray, productsize:int, productmeasure:chararray, purchasequantity:chararray, purchaseamount:chararray);
+
+trans2 = FILTER trans2 BY id != '"id"';
+brand_2 = FOREACH trans2 GENERATE id, brand;
+
+brand_2 = DISTINCT brand_2;
+
+grouped_brand = GROUP brand_1 BY id;
+
+aug_brand  = FOREACH grouped_brand GENERATE FLATTEN(brand_1) AS (id, brand), COUNT(brand_1) AS id_out;
+
+grouped_brand_2  = GROUP brand_2 BY id;
+aug_brand_2 = FOREACH grouped_brand_2 GENERATE FLATTEN(brand_2) AS (id, brand), COUNT(brand_2) AS id_out;
+
+ 
+grouped_brand_2  = GROUP brand_2 BY id;
+aug_brand_2 = FOREACH grouped_brand_2 GENERATE FLATTEN(brand_2) AS (id, brand), COUNT(brand_2) AS id_out;
+
+
+brand_joined  = JOIN aug_brand BY brand, aug_brand_2 BY brand;
+
+
+
+intersection  = FOREACH brand_joined {
+                  --
+                  -- results in:
+                  -- (X, Y, |X| + |Y|)
+                  -- 
+                  added_size = aug_brand::id_out + aug_brand_2::id_out;
+                  GENERATE
+                    aug_brand::id AS user1,
+                    aug_brand_2::id  AS user2,
+                    added_size AS added_size
+                  ;
+                };
+
+
+intersect_grp   = GROUP intersection BY (user1, user2);
+
+intersect_sizes = FOREACH intersect_grp {
+                    --
+                    -- results in:
+                    -- (X, Y, |X /\ Y|, |X| + |Y|)
+                    --
+                    intersection_size = (double)COUNT(intersection);
+                    GENERATE
+                      FLATTEN(group)               AS (user1, user2),
+                      intersection_size            AS intersection_size,
+                      MAX(intersection.added_size) AS added_size -- hack, we only need this one time
+		      
+                    ;
+                  };
+
+
+similarities = FOREACH intersect_sizes {
+                 --
+                 -- results in:
+                 -- (X, Y, |X /\ Y|/|X U Y|)
+                 --
+                 similarity = (double)intersection_size/((double)added_size-(double)intersection_size);
+                 GENERATE
+                   user1         AS user1,
+                   user2         AS user2,
+                   similarity AS similarity
+                 ;
+               };
+ 
+-- DUMP similarities;
+
+similarities  = FILTER similarities BY user1 != user2 and similarity > 0; 
+STORE similarities into 's3n://kaggleshoppersnew/small_similarity_results2' USING  PigStorage(',');
+
+
+
+
