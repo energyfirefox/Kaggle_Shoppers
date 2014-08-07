@@ -22,14 +22,8 @@ aug_brand  = FOREACH grouped_brand GENERATE FLATTEN(brand_1) AS (id, brand), COU
 grouped_brand_2  = GROUP brand_2 BY id;
 aug_brand_2 = FOREACH grouped_brand_2 GENERATE FLATTEN(brand_2) AS (id, brand), COUNT(brand_2) AS id_out;
 
- 
-grouped_brand_2  = GROUP brand_2 BY id;
-aug_brand_2 = FOREACH grouped_brand_2 GENERATE FLATTEN(brand_2) AS (id, brand), COUNT(brand_2) AS id_out;
-
 
 brand_joined  = JOIN aug_brand BY brand, aug_brand_2 BY brand;
-
-
 
 intersection  = FOREACH brand_joined {
                   --
